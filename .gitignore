@@ -108,6 +108,9 @@ env.bak/
 venv.bak/
 Danvenv/
 
+# Exception: Allow guandan/env/ directory
+!guandan/env/
+
 # Spyder project settings
 .spyderproject
 .spyproject
