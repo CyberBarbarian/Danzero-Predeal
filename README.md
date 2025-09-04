@@ -3,12 +3,14 @@
 > This repository is based on the DouZero codebase and has been evolved to migrate from the original "Doudizhu" (Fight the Landlord) environment to "Guandan" and build a scalable distributed reinforcement learning training and evaluation framework.
 
 ## 1. Project Vision
+
 - Provide a standardized, vectorizable Guandan environment (unified state/action encoding, parallelizable rollout).
 - Integrate Ray distributed components for high-concurrency self-play sampling and centralized Learner updates.
 - Compatible unified evaluation interface for rule-based baselines and learning policies (RL policy).
 - Progressive cleanup of historical Doudizhu legacy code and duplicate utility functions to ensure code cleanliness and maintainability.
 
 ## 2. Current Progress Summary
+
 | Module | Status | Description |
 |--------|--------|-------------|
 | env/ | Exists | Guandan core logic (card dealing / move legality / table state) is initially functional; needs unified Observation construction and legal action masks. |
@@ -20,7 +22,8 @@
 | baselines/README.md | Written | Describes rule baselines and legacy status plus refactoring plan. |
 
 ## 3. Directory Structure (Simplified View)
-```
+
+```text
 guandan/
   env/                # Guandan game state, rules and action generation logic
   agent/
@@ -37,6 +40,7 @@ README.md             # This file
 ```
 
 ## 4. Rule-based Baseline Strategies (rule/) Status
+
 | Baseline | Positioning | Next Steps |
 |----------|-------------|------------|
 | ai1 | Main complex rules | Adapt to BaseAgent, extract card type parsing modules |
@@ -49,6 +53,7 @@ README.md             # This file
 See baselines/README.md for details.
 
 ## 5. Upcoming Refactoring Milestones
+
 | Milestone | Goal | Key Deliverables |
 |-----------|------|------------------|
 | M1: Observation Unification | Standardize obs dict(tensor) + legal_action_mask | env/observation_builder.py (new) |
@@ -58,7 +63,9 @@ See baselines/README.md for details.
 | M5: Redundancy Cleanup | Remove ai3/ai4/ai6 & torch (optional) | Streamlined agents.py / documentation updates |
 
 ## 6. Technical Design Points (Planned)
+
 ### 6.1 Observation Composition (Draft)
+
 | Component | Description | Shape (Example) |
 |-----------|-------------|-----------------|
 | hand_cards | Own current hand cards one-hot/multi-channel | (C1,) or (Suits,Ranks) |
@@ -68,21 +75,26 @@ See baselines/README.md for details.
 | legal_mask | Legal action mask (lazy construction) | (A,) |
 
 ### 6.2 Action Encoding Strategy
+
 - Establish global "normalized action set": expand by card type + main value + auxiliary card slots.
 - Provide bidirectional mapping: encode(move)->index and decode(index)->move.
 - For "dynamic length" card types (straights / triple pairs), use length upper bound + padding; or split into (card_type, start_rank, length) triple combination encoding.
 
 ### 6.3 BaseAgent Adapter
+
 Legacy rule baselines retain original `received_message` flow → adapter parses message → temporarily construct obs + mask → call internal decision → output unified action index.
 
 ## 7. Quick Start (Current Temporary Method)
+
 ```python
 from guandan.agent.agents import agent_cls
 agent = agent_cls['ai1'](id=0)
 # Assuming server-pushed JSON message msg exists
 action_index = agent.received_message(msg)
 ```
+
 Future version will be:
+
 ```python
 from guandan.agent import make_agent
 agent = make_agent('rule_ai1')
@@ -93,12 +105,15 @@ while not done:
 ```
 
 ## 8. Contributing & Collaboration
+
 Welcome through Issues / PRs:
+
 - Report Guandan rule/judgment differences
 - Provide more efficient action space compression solutions
 - Optimize feature extraction and network architecture
 
 ## 9. Change Log (Simplified)
+
 | Date | Change | Summary |
 |------|--------|---------|
 | 2025-09-02 | README rewrite | Archived old DouZero README, added Guandan direction description |
@@ -107,6 +122,7 @@ Welcome through Issues / PRs:
 > Complete history available in Git commit records.
 
 ## 10. Future Discussion Topics (Open Questions)
+
 - Optimal encoding strategy for variable-length actions (straights / consecutive pairs) (fixed slots vs. segmented actions)
 - Team information sharing modeling (feature fusion for teammate card information estimation)
 - Stage-aware value normalization (stage-aware value normalization)
@@ -114,4 +130,3 @@ Welcome through Issues / PRs:
 
 ---
 If you're looking for the old DouZero (Doudizhu) documentation, please check: `archive/doudizhu/README_doudizhu_original.md`.
-

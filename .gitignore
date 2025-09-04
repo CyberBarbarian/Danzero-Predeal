@@ -214,18 +214,9 @@ Thumbs.db
 *.7z
 
 # Temporary files
-*.tmp
-*.temp
 *.bak
 *.backup
 *.orig
-
-# Configuration files with sensitive data
-config.ini
-secrets.json
-.secrets
-.env.local
-.env.production
 
 # IDE specific
 *.sublime-project
@@ -233,4 +224,3 @@ secrets.json
 
 # Project specific
 douzero_offline.zip
-*.zip
