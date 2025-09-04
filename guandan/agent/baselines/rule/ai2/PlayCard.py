@@ -1,4 +1,4 @@
-# TODO: 迁移后统一PlayCard依赖引用
+# TODO: Unify PlayCard dependency references after migration
 from .CreateActionList import CreateActionList
 from .CountValue import CountValue
 from .config import CompareRank

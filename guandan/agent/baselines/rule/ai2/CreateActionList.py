@@ -1,4 +1,4 @@
-# TODO: 迁移后统一动作生成接口
+# TODO: Unify action generation interface after migration
 import json
 import random
 from . import config

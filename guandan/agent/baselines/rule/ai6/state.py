@@ -57,7 +57,7 @@ class State(object):
         self._draws = None
         self._restCards = None
 
-        # TODO: 选手可根据(stage, type)自行定义处理的函数
+        # TODO: Players can define their own processing functions based on (stage, type)
         self.__parse_func = {
             ("beginning", "notify"): self.notify_begin,
             ("play", "notify"): self.notify_play,
@@ -98,7 +98,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         # print(self._myPos)
         # with open('data2.txt', 'w') as f:
         #     f.write(str(self._myPos))
@@ -118,7 +118,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
 
         print("{}号位打出{}， 最大动作为{}号位打出的{}".format(self._curPos, self._curAction, self._greaterPos, self._greaterAction))
 
@@ -133,7 +133,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("这是进贡时的手牌",self._handCards)
         for tribute_result in self._result:
             tribute_pos, receive_tribute_pos, card = tribute_result
@@ -151,7 +151,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         for pos in self._antiPos:
             print("{}号位玩家抗贡".format(pos))
 
@@ -166,7 +166,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         for back_result in self._result:
             back_pos, receive_back_pos, card = back_result
             print("{}号位向{}号位还贡{}".format(back_pos, receive_back_pos, card))
@@ -184,7 +184,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("对局结束，完牌次序为{}，结束时所打的等级为{}".format(self._order, self._curRank))
         for rest in self._restCards:
             rest_pos, rest_cards = rest
@@ -202,7 +202,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("当前训练次数为{}, 设定的游戏次数为{}".format(self._curTimes, self._settingTimes))
 
     def notify_game_result(self):
@@ -216,7 +216,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("达到设定场次, 其中0号位胜利{}次，1号位胜利{}次，2号位胜利{}次，3号位胜利{}次".format(*self._victoryNum))
         print("其中平局次数：0号位平局{}次，1号位平局{}次，2号位平局{}次，3号位平局{}次".format(*self._draws))
 
@@ -249,7 +249,7 @@ class State(object):
         # print("这是手牌",self._handCards)
         # print("这是greatAction",self._greaterAction)
 
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("我方等级：{}， 对方等级：{}， 当前等级{}".format(self._selfRank, self._oppoRank, self._curRank))
         print("当前动作为{}号-动作{}， 最大动作为{}号-动作{}，目前可选动作如下：".format(
             self._curPos, self._curAction, self._greaterPos, self._greaterAction)
@@ -280,7 +280,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("我方等级：{}， 对方等级：{}， 当前等级{}".format(self._selfRank, self._oppoRank, self._curRank))
         print("轮到自己进贡，可进贡的牌有: ")
 
@@ -309,7 +309,7 @@ class State(object):
         }
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
-        # TODO: 选手可自行做出其他处理
+        # TODO: Players can make other custom processing
         print("可以还贡的",self._actionList)
         print("我方等级：{}， 对方等级：{}， 当前等级{}".format(self._selfRank, self._oppoRank, self._curRank))
         print("轮到自己还贡，可还贡的牌有:")

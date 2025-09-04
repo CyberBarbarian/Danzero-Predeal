@@ -1,4 +1,4 @@
-# TODO: 后续统一BaseAgent接口；rule系为迁移占位
+# TODO: Unify BaseAgent interface later; rule-based agents are migration placeholders
 from agent.baselines.rule.ai1.client import Ai1_agent
 from agent.random_agent import RandomAgent
 from agent.baselines.rule.ai2.client import Ai2_agent

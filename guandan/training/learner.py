@@ -9,7 +9,7 @@ class Learner:
         self.global_step = 0
 
     def update(self, batch: Dict[str, Any]) -> Dict[str, float]:
-        # TODO: 实现真实更新逻辑
+        # TODO: Implement actual update logic
         self.global_step += 1
         return {'loss': 0.0, 'step': self.global_step}
 

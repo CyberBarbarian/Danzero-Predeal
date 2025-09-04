@@ -1,4 +1,4 @@
-# TODO: 迁移后待统一接口
+# TODO: Interface to be unified after migration
 # -*- coding: utf-8 -*-
 # @Time       : 2020/10/1 16:30
 # @Author     : Duofeng Wu

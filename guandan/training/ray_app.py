@@ -9,7 +9,7 @@ def train(flags):
     os.makedirs(flags.savedir, exist_ok=True)
     logger = Logger(flags.savedir, flags.xpid)
     logger.save_meta({'args': vars(flags), 'start_time': datetime.utcnow().isoformat()})
-    # TODO: 初始化 Ray, 创建 ParameterServer / RolloutWorkers / Learner 并开始训练循环
+    # TODO: Initialize Ray, create ParameterServer / RolloutWorkers / Learner and start training loop
     logger.log({'event': 'bootstrap', 'status': 'ok'})
     print('DanZero training skeleton 已初始化 (未开始真实训练逻辑).')
 

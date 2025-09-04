@@ -1,4 +1,4 @@
-# TODO: 重构抽取公共牌型/特征到统一模块，移除通配导入
+# TODO: Refactor to extract common card types/features to unified module, remove wildcard imports
 import copy
 import logging
 from random import randint, random

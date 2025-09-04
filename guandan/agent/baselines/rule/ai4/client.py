@@ -3,7 +3,7 @@
 # @Author     : Duofeng Wu
 # @File       : client.py
 # @Description:
-# TODO: 迁移后统一接口
+# TODO: Unify interface after migration
 
 
 import json

@@ -3,7 +3,7 @@
 # @Author     : Duofeng Wu
 # @File       : action.py
 # @Description: 动作类
-# TODO: 抽取公共逻辑到统一feature/logic模块
+# TODO: Extract common logic to unified feature/logic module
 
 import copy
 from random import randint, random
