@@ -15,17 +15,22 @@ The project is structured around three main components:
 ### Root Level
 
 ```text
-guandan_douzero/
+DanZero/
 ├── train.py                    # Main training entry point
 ├── setup.py                    # Package configuration
 ├── requirements.txt            # Python dependencies
 ├── requirements_lock.txt       # Locked dependency versions
 ├── PROJECT_STRUCTURE.md        # This documentation
 ├── README.md                   # Project overview and usage
+├── RLLIB_INTEGRATION_GUIDE.md  # RLLib integration documentation
 ├── LICENSE                     # Apache 2.0 license
 ├── actor.sh                    # Training script
 ├── get_most_recent.sh          # Model retrieval script
 ├── kill.sh                     # Process termination script
+├── test_rllib_simple.py        # RLLib environment test suite
+├── test_rllib_env_simple.py    # RLLib environment validation
+├── test_rllib_env.py           # RLLib environment test (legacy)
+├── most_recent_model/          # Model checkpoint directory
 ├── Danvenv/                    # Python virtual environment
 ├── archive/                    # Legacy Doudizhu code archive
 └── guandan/                    # Main package directory
@@ -37,21 +42,31 @@ guandan_douzero/
 
 - **`config.py`** - Centralized training parameters and hyperparameters for DanZero framework
 
+#### DeepMind Control Integration (`dmc/`)
+
+```text
+dmc/
+└── (empty)              # DeepMind Control integration (placeholder)
+```
+
 #### Game Environment (`env/`)
 
 ```text
 env/
 ├── __init__.py
-├── game.py              # Main game environment and self-play driver
-├── engine.py            # Game rules, stage flow, and state transitions
-├── card_deck.py         # Two-deck card generation and dealing logic
-├── player.py            # Player state and data structures
-├── context.py           # Game context and shared state
-├── table.py             # Table state management
-├── utils.py             # Card pattern analysis and legal action generation
-├── move_detector.py     # Move validation and detection
-├── move_generator.py    # Legal move generation
-└── move_selector.py     # Move selection utilities
+├── game.py                    # Main game environment and self-play driver
+├── engine.py                  # Game rules, stage flow, and state transitions
+├── card_deck.py               # Two-deck card generation and dealing logic
+├── player.py                  # Player state and data structures
+├── context.py                 # Game context and shared state
+├── table.py                   # Table state management
+├── utils.py                   # Card pattern analysis and legal action generation
+├── move_detector.py           # Move validation and detection
+├── move_generator.py          # Legal move generation
+├── move_selector.py           # Move selection utilities
+├── observation_extractor.py   # JSON to numpy observation conversion (212-dim)
+├── rllib_env.py              # RLLib MultiAgentEnv wrapper (original)
+└── rllib_env_simple.py       # RLLib MultiAgentEnv wrapper (simplified, working)
 ```
 
 #### Agent System (`agent/`)
@@ -61,15 +76,16 @@ agent/
 ├── __init__.py
 ├── agents.py            # Agent registry and factory
 ├── random_agent.py      # Random baseline strategy
+├── ai1/                 # Complex rule-based strategy (migrated)
+├── ai2/                 # Phased decision-making strategy (migrated)
+├── ai3/                 # Experimental/adversarial strategy (migrated)
+├── ai4/                 # Alternative heuristic approach (migrated)
+├── ai6/                 # Additional heuristic strategy (migrated)
+├── mc/                  # Monte Carlo baseline (legacy)
 ├── baselines/           # Rule-based AI strategies
 │   ├── __init__.py
 │   ├── README.md        # Baseline strategies documentation
 │   ├── rule/            # Rule-based AI implementations
-│   │   ├── ai1/         # Complex rule-based strategy
-│   │   ├── ai2/         # Phased decision-making strategy
-│   │   ├── ai3/         # Experimental/adversarial strategy
-│   │   ├── ai4/         # Alternative heuristic approach
-│   │   └── ai6/         # Additional heuristic strategy
 │   └── legacy/          # Archived baseline implementations
 │       └── mc/          # Monte Carlo baseline (archived)
 └── torch/               # Neural network-based agents
@@ -163,6 +179,16 @@ archive/
 │   Workers       │    │ • Card Deck      │    │                 │
 │ • Learner       │    │ • Player Context │    │                 │
 └─────────────────┘    └──────────────────┘    └─────────────────┘
+         │                       │
+         │              ┌──────────────────┐
+         │              │   RLLib          │
+         └──────────────►│   Integration    │
+                        ├──────────────────┤
+                        │ • MultiAgentEnv  │
+                        │ • Observation    │
+                        │   Extractor      │
+                        │ • Test Suites    │
+                        └──────────────────┘
 ```
 
 ## Development Status
@@ -171,27 +197,32 @@ archive/
 
 - ✅ Guandan game environment implementation
 - ✅ Multiple rule-based agent strategies
-- ✅ Basic training framework structure
+- ✅ Complete training framework structure
 - ✅ Agent registry and factory system
 - ✅ Legacy code archival and organization
+- ✅ RLLib MultiAgentEnv integration
+- ✅ Observation extraction system (212-dimensional)
+- ✅ Comprehensive test suites for RLLib integration
+- ✅ Documentation maintenance and updates
 
 ### In Progress
 
-- 🔄 Observation standardization and action encoding
 - 🔄 BaseAgent interface unification
-- 🔄 Ray training pipeline implementation
-- 🔄 Feature extraction and encoding modules
+- 🔄 Full game logic integration with RLLib environment
+- 🔄 Agent adapter layer for existing agents
 
 ### Planned
 
-- 📋 Comprehensive testing suite
 - 📋 Performance optimization
-- 📋 Documentation and examples
 - 📋 Model evaluation and benchmarking
+- 📋 Advanced training strategies
+- 📋 Multi-agent coordination improvements
 
 ## Usage
 
 ### Quick Start
+
+#### Traditional Agent Usage
 
 ```python
 from guandan.agent.agents import agent_cls
@@ -203,11 +234,37 @@ agent = agent_cls['ai1'](id=0)
 action_index = agent.received_message(game_message)
 ```
 
+#### RLLib Environment Usage
+
+```python
+from guandan.env.rllib_env_simple import GuandanRLLibEnv
+
+# Create environment
+env = GuandanRLLibEnv()
+
+# Reset and get observations
+obs = env.reset()
+print(f"Observation space: {env.observation_space}")
+print(f"Action space: {env.action_space}")
+
+# Step through environment
+action = env.action_space.sample()  # Random action
+obs, rewards, dones, infos = env.step(action)
+```
+
 ### Training
 
 ```bash
 # Start distributed training
 python train.py --xpid danzero_experiment --total_frames 10000000
+```
+
+### Testing
+
+```bash
+# Test RLLib integration
+python test_rllib_simple.py
+python test_rllib_env_simple.py
 ```
 
 ## Contributing
