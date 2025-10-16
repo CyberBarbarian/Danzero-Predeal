@@ -104,8 +104,7 @@ echo ""
 
 # Verify scripts
 bash -n train_test.sh && echo "✅ train_test.sh - Syntax OK"
-bash -n train_production.sh && echo "✅ train_production.sh - Syntax OK"
-python3 -m py_compile analyze_results.py && echo "✅ analyze_results.py - Syntax OK"
+bash -n ../../scripts/training/train_production.sh && echo "✅ train_production.sh - Syntax OK"
 
 echo ""
 echo "================================================================================"
@@ -113,7 +112,7 @@ echo "✅ All production scripts verified and ready to use!"
 echo "================================================================================"
 echo ""
 echo "You can now run:"
-echo "  $ bash train_test.sh"
-echo "  $ bash train_production.sh"
+echo "  $ bash testing/scripts/train_test.sh"
+echo "  $ bash scripts/training/train_production.sh"
 echo ""
 

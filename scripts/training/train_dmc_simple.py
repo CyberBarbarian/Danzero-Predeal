@@ -14,7 +14,8 @@ from typing import Dict, Any
 # Add project root to path
 import sys
 import os
-sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+# From scripts/training/ -> scripts/ -> project root
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__)))))
 
 from guandan.rllib.models.q_model import GuandanQModel
 from guandan.training.logger import Logger

@@ -148,7 +148,7 @@ try:
     print("      all agents will be ~0. Individual agent/team rewards vary.")
     print()
     print("Next step:")
-    print("  bash train_production.sh")
+    print("  bash scripts/training/train_production.sh")
     print("="*80)
 
 except Exception as e:
