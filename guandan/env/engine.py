@@ -6,11 +6,11 @@ Author : Lu Yudong
 import numpy as np
 import time
 from copy import deepcopy
-from env.player import Player
-from env.card_deck import CardDeck
-from env.context import Context
-from env.table import Table
-from env.utils import legalaction, vector2card, RANK2, tribute_legal, anti_tribute, back_legal, CardToNum, give_type
+from .player import Player
+from .card_deck import CardDeck
+from .context import Context
+from .table import Table
+from .utils import legalaction, vector2card, RANK2, tribute_legal, anti_tribute, back_legal, CardToNum, give_type
 
 
 class GameEnv(object):
@@ -42,7 +42,7 @@ class GameEnv(object):
             self.ctx.players[i].have_cards = True
 
     def battle_init(self):
-        # self.deal_cards()
+        self.deal_cards()  # Restore all players to table and deal new cards
         if len(self.ctx.win_order) == 0:
             self.ctx.player_waiting = np.random.randint(0, 4)
         else:
@@ -53,6 +53,23 @@ class GameEnv(object):
         self.ctx.wind = False
         self.wind_num = 0
         self.round_end = False
+        
+        # Check for episode completion BEFORE resetting win_order
+        # Episode ends only when a team wins at rank A with correct conditions
+        if self.ctx.cur_rank == 'A' and len(self.ctx.win_order) >= 2:
+            first = self.ctx.win_order[0]  # Banker
+            banker_partner = (first + 2) % 4
+            
+            # Check if partner is Follower (2nd place)
+            if len(self.ctx.win_order) >= 2 and self.ctx.win_order[1] == banker_partner:
+                self.episode_end = True
+                print(f"Game won at rank A: Banker {first}, Partner {banker_partner} is Follower")
+            # Check if partner is Third (3rd place)
+            elif len(self.ctx.win_order) >= 3 and self.ctx.win_order[2] == banker_partner:
+                self.episode_end = True
+                print(f"Game won at rank A: Banker {first}, Partner {banker_partner} is Third")
+        
+        # Reset win order AFTER checking for episode completion
         self.ctx.win_order = []
         self.ctx.trick_pass = 0
         self.ctx.recv_wind = False
@@ -71,10 +88,23 @@ class GameEnv(object):
         # legalactions = legalaction(self.ctx)
         if action is None:
             # default random action
-            action = np.random.randint(0, len(legalactions))
-        self.update(legalactions[action])
-
-        print('played', vector2card(legalactions[action][:54]), legalactions[action])
+            if len(legalactions) > 0:
+                action = np.random.randint(0, len(legalactions))
+            else:
+                # No legal actions available, use empty action
+                self.update([])
+                print('played', [], [])
+                return 0
+        
+        if action < len(legalactions):
+            action_to_use = legalactions[action]
+            self.update(action_to_use)
+            print('played', vector2card(action_to_use[:54]), action_to_use)
+        else:
+            # Action index out of range, use first action or empty
+            action_to_use = legalactions[0] if legalactions else []
+            self.update(action_to_use)
+            print('played', vector2card(action_to_use[:54]) if action_to_use else [], action_to_use)
         return 0
 
     def update(self, action): # action最后一项是last_type
@@ -98,6 +128,7 @@ class GameEnv(object):
             self.ctx.win_order.append(self.ctx.player_waiting)
             self.ctx.wind = True     # 有人出完牌，进入接风轮
             self.wind_num = self.ctx.table.players_on_table_numb
+            # Check if round should end AFTER removing player from table
             self.whether_end()   # 判断游戏是否结束
         if not self.round_end:
             if self.ctx.wind:
@@ -126,24 +157,80 @@ class GameEnv(object):
                 self.ctx.win_order.append(i)
             self.upgrade()
 
+    def determine_winner(self):
+        """
+        Determine the winner based on Guandan rules.
+        In Guandan, only the team with the FIRST PLACE player wins.
+        The teammate's position determines the rank promotion.
+        """
+        if len(self.ctx.win_order) < 1:
+            return  # Not enough players to determine winner
+            
+        first_place = self.ctx.win_order[0]
+        
+        # Define teams: Team 1 (players 0,2) vs Team 2 (players 1,3)
+        team1_players = [0, 2]
+        team2_players = [1, 3]
+        
+        # In Guandan, only the team with the FIRST PLACE player wins
+        if first_place in team1_players:
+            self.ctx.winner_team = 'team1'
+            self.ctx.loser_team = 'team2'
+            self.ctx.game_result = 'team1_win'
+        elif first_place in team2_players:
+            self.ctx.winner_team = 'team2'
+            self.ctx.loser_team = 'team1'
+            self.ctx.game_result = 'team2_win'
+        else:
+            # This shouldn't happen in a valid game
+            self.ctx.winner_team = None
+            self.ctx.loser_team = None
+            self.ctx.game_result = None
+            
+        print(f"DEBUG WINNER: first_place={first_place}, winner_team={self.ctx.winner_team}, game_result={self.ctx.game_result}")
+
     def upgrade(self):
+        # Check if we have enough players in win_order
+        if len(self.ctx.win_order) < 2:
+            return  # Not enough players to determine upgrade
+            
         first = self.ctx.win_order[0]
         second = self.ctx.win_order[1]
-        third = self.ctx.win_order[2]
-        if abs(first - second) == 2:
+        
+        # Determine winner before calculating upgrade
+        self.determine_winner()
+        
+        # Determine uprank based on partner's position
+        # Partner is always (first + 2) % 4
+        partner = (first + 2) % 4
+        
+        # Find partner's position in win_order
+        partner_position = None
+        for pos, player in enumerate(self.ctx.win_order):
+            if player == partner:
+                partner_position = pos + 1  # 1-indexed position
+                break
+        
+        if partner_position == 2:  # Partner is Follower (2nd place)
             uprank = 3
-        elif abs(first - third) == 2:
+        elif partner_position == 3:  # Partner is Third (3rd place)
             uprank = 2
-        else:
+        else:  # Partner is Fourth or worse
             uprank = 1
-        if self.ctx.cur_rank == 'A' and self.ctx.players[first].playing_self and uprank >= 2:
-            self.episode_end = True
+        # Episode completion check moved to battle_init() to avoid win_order reset timing issue
         if not self.episode_end:     # 这局没有完的时候更新相应的等级
-            self.ctx.players[first].playing_self = True     # 下回合是打谁的level
-            self.ctx.players[(first + 2) % 4].playing_self = True
-            self.ctx.players[(first + 1) % 4].playing_self = False
-            self.ctx.players[(first + 3) % 4].playing_self = False
-            level = min(13, self.ctx.players[first].my_rank + uprank)
+            self.ctx.players[first].playing_myself = True     # 下回合是打谁的level
+            self.ctx.players[(first + 2) % 4].playing_myself = True
+            self.ctx.players[(first + 1) % 4].playing_myself = False
+            self.ctx.players[(first + 3) % 4].playing_myself = False
+            
+            # Fix Q/K level skip prevention rule
+            current_level = self.ctx.players[first].my_rank
+            if (current_level == 11 or current_level == 12) and uprank >= 2:  # Q(11) or K(12) level with 2+ promotion
+                level = 13  # Must go to A, cannot skip it
+            else:
+                level = min(13, current_level + uprank)
+            
             self.ctx.cur_rank = RANK2[level]
             for i in range(4):
                 if i == first or i == (first + 2) % 4:
@@ -165,12 +252,43 @@ class GameEnv(object):
             legalactions = back_legal(card_list, self.ctx)
         if action is None:
             # default random action
-            action = np.random.randint(0, len(legalactions))
-        card = legalactions[action]
+            if len(legalactions) > 0:
+                action = np.random.randint(0, len(legalactions))
+            else:
+                # No legal actions available, return empty card
+                return []
+        
+        if action < len(legalactions):
+            card = legalactions[action]
+        else:
+            # Action index out of range, return first action or empty
+            card = legalactions[0] if legalactions else []
 
         return card
 
     def compare(self, card1, card2):     # 比较card1和card2哪个更大
+        # Handle empty cards (no tribute available)
+        if not card1 and not card2:
+            return 0  # Both empty, equal
+        elif not card1:
+            return -1  # card1 empty, card2 wins
+        elif not card2:
+            return 1   # card2 empty, card1 wins
+        
+        # Handle list inputs (convert to single card value)
+        if isinstance(card1, list):
+            card1 = card1[0] if card1 else -1
+        if isinstance(card2, list):
+            card2 = card2[0] if card2 else -1
+            
+        # Handle invalid cards
+        if card1 < 0 and card2 < 0:
+            return 0
+        elif card1 < 0:
+            return -1
+        elif card2 < 0:
+            return 1
+            
         if card1 >= 52 and card2 >= 52:
             if card1 > card2:
                 return 1
@@ -193,8 +311,17 @@ class GameEnv(object):
                 return -1
 
     def tribute_act(self, out, recv, card):   # out拿出card给recv，表示进贡和还贡的单向动作
+        # Skip tribute if card is empty (no legal actions)
+        if not card:
+            return
+            
         card_out = deepcopy(self.ctx.players[out].handcards_in_list)
         card_recv = deepcopy(self.ctx.players[recv].handcards_in_list)
+        
+        # Check if card is actually in the player's hand
+        if card not in card_out:
+            return
+            
         card_out.remove(card)
         card_recv.append(card)
         self.ctx.players[out].update_cards(card_out)

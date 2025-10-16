@@ -1,17 +1,16 @@
 from collections import Counter
 import sys
 import gc
-sys.path.append('/aiarena/nas/guandan_douzero/guandan/')
 import time
 import json
 from copy import deepcopy
-from env.player import Player
-from env.card_deck import CardDeck
-from env.context import Context
-from env.table import Table
-from env.engine import GameEnv
-from agent.agents import agent_cls
-from env.utils import NumToCard, give_type, legalaction, tribute_legal, back_legal, CardToNum, RANK2, RANK1, card_list2str
+from .player import Player
+from .card_deck import CardDeck
+from .context import Context
+from .table import Table
+from .engine import GameEnv
+from ..agent.agents import agent_cls
+from .utils import NumToCard, give_type, legalaction, tribute_legal, back_legal, CardToNum, RANK2, RANK1, card_list2str
 
 
 # 按照比赛gamecore写，json里的playArea逻辑不清，现有AI都不需要这一项，直接去掉

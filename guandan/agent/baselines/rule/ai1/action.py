@@ -131,8 +131,9 @@ class Action(object):
                 if curVal <= 10:
                     return index
                 else:
-                    print(index)
-                    if card_val[actionList[index][1]] == curVal + 1:
+                    # Get the actual action from single_actionList
+                    action = single_actionList[index][1]
+                    if card_val[action[1]] == curVal + 1:
                         return index
             else:
                 index = normal(single_actionList, single_member, rank_card)
@@ -280,7 +281,9 @@ class Action(object):
                 if curVal <= 10:
                     return index
                 else:
-                    if card_val[actionList[index][1]] == curVal + 1:
+                    # Get the actual action from pair_actionList
+                    action = pair_actionList[index][1]
+                    if card_val[action[1]] == curVal + 1:
                         return index
             else:
                 index = normal(pair_actionList, pair_member, rank_card)
@@ -411,7 +414,9 @@ class Action(object):
                 if curVal <= 10:
                     return index
                 else:
-                    if card_val[actionList[index][1]] == curVal + 1:
+                    # Get the actual action from three2_actionList
+                    action = three2_actionList[index][1]
+                    if card_val[action[1]] == curVal + 1:
                         return index
             else:
                 index = normal(three2_actionList, trip_member, pair_member, rank_card)
@@ -536,7 +541,9 @@ class Action(object):
                 if curVal <= 10:
                     return index
                 else:
-                    if card_val[actionList[index][1]] == curVal + 1:
+                    # Get the actual action from trip_actionList
+                    action = trip_actionList[index][1]
+                    if card_val[action[1]] == curVal + 1:
                         return index
             else:
                 index = normal(trip_actionList, trip_member, rank_card)
@@ -666,7 +673,9 @@ class Action(object):
                 if curVal <= 7:
                     return index
                 else:
-                    if card_val[actionList[index][1]] == curVal + 1:
+                    # Get the actual action from pair3_actionList
+                    action = pair3_actionList[index][1]
+                    if card_val[action[1]] == curVal + 1:
                         return index
             else:
                 index = normal(pair3_actionList, pair_member, rank_card)
@@ -859,7 +868,9 @@ class Action(object):
                 if curVal <= 10:
                     return index
                 else:
-                    if card_val[actionList[index][1]] == curVal + 1:
+                    # Get the actual action from twoTripsList
+                    action = twoTripsList[index][1]
+                    if card_val[action[1]] == curVal + 1:
                         return index
             else:
                 index = normal(twoTripsList, trip_member, rank_card)
@@ -1308,12 +1319,12 @@ class Action(object):
         if len(self.action) == 1:
             return 0
         if msg["stage"] == "play" and msg["greaterPos"] != mypos and msg["curPos"] != -1:
-            print("被动出牌")
+            print("Passive play")
             numofplayers = [history['0']["remain"], history['1']["remain"], history['2']["remain"],
                             history['3']["remain"]]
             numofnext = numofplayers[(mypos + 1) % 4]
             if numofnext != 0:
-                print("下家还有{}张牌".format(numofnext))
+                print("Next player has {} cards".format(numofnext))
             else:
                 numofpre = numofplayers[(mypos - 1) % 4]
             self.act = self.passive(self.action, msg["handCards"], msg["curRank"], msg['curAction'],
@@ -1337,12 +1348,12 @@ class Action(object):
             #     self.act = 1
 
         elif msg["stage"] == "play" and (msg["greaterPos"] == -1 or msg["curPos"] == -1):
-            print("主动出牌")
+            print("Active play")
             numofplayers = [history['0']["remain"], history['1']["remain"], history['2']["remain"],
                             history['3']["remain"]]
             numofnext = numofplayers[(mypos + 1) % 4]
             if numofnext != 0:
-                print("下家还有{}张牌".format(numofnext))
+                print("Next player has {} cards".format(numofnext))
             else:
                 numofpre = numofplayers[(mypos - 1) % 4]
             self.act = self.active(self.action, msg["handCards"], msg["curRank"], numofplayers, mypos, remaincards)
@@ -1371,11 +1382,19 @@ class Action(object):
             #     self.act = 0
         else:
             self.act_range = msg["indexRange"]
-            self.act = randint(0, self.act_range)
+            # Ensure act_range is valid for randint
+            if self.act_range < 0:
+                self.act = 0
+            else:
+                self.act = randint(0, self.act_range)
 
         return self.act
 
     def random_parse(self, msg):
         self.action = msg["actionList"]
         self.act_range = msg["indexRange"]
-        return randint(0, self.act_range)
+        # Ensure act_range is valid for randint
+        if self.act_range < 0:
+            return 0
+        else:
+            return randint(0, self.act_range)

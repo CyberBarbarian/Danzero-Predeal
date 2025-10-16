@@ -150,7 +150,14 @@ class ObservationExtractor:
         
         # Current rank
         if 'curRank' in data:
-            game_state[idx] = data['curRank'] / 13.0  # Normalize to [0, 1]
+            # Handle both string and numeric rank values
+            if isinstance(data['curRank'], str):
+                # Convert string rank to numeric value
+                rank_mapping = {'2': 0, '3': 1, '4': 2, '5': 3, '6': 4, '7': 5, '8': 6, '9': 7, 'T': 8, 'J': 9, 'Q': 10, 'K': 11, 'A': 12}
+                rank_value = rank_mapping.get(data['curRank'], 0)
+            else:
+                rank_value = data['curRank']
+            game_state[idx] = rank_value / 13.0  # Normalize to [0, 1]
         idx += 1
         
         # Current position
@@ -255,7 +262,9 @@ class ObservationExtractor:
         action_vec[0] = type_mapping.get(action[0], 0.0)
         
         # Action value (normalized)
-        if isinstance(action[1], str):
+        if action[1] is None:
+            action_vec[1] = 0.0
+        elif isinstance(action[1], str):
             # Convert card value to number
             value_mapping = {
                 '2': 0.0, '3': 0.1, '4': 0.2, '5': 0.3, '6': 0.4,

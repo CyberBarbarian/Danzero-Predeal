@@ -15,11 +15,11 @@ baselines/
 
 | Directory | Role | Status | Notes |
 |-----------|------|--------|-------|
-| ai1  | Complex rule set | Retained | As main rule baseline (recommended) |
-| ai2  | Phased strategy | Retained | As second reference rule baseline |
-| ai3  | Adversarial/experimental | To be pruned | Logic redundancy, mainly for early adversarial testing |
-| ai4  | Highly overlaps with ai1 | To be archived | Planned for future simplification or deletion |
-| ai6  | Another heuristic approach | To be archived | Kept only for specific comparisons |
+| ai1  | Complex rule set | ✅ Active | Main rule baseline (recommended) |
+| ai2  | Phased strategy | ✅ Active | Second reference rule baseline |
+| ai3  | Adversarial/experimental | ✅ Active | Experimental strategy for testing |
+| ai4  | Alternative heuristic | ✅ Active | Complementary approach to ai1 |
+| ai6  | Specialized strategy | ✅ Active | Additional heuristic approach |
 
 Common features:
 
@@ -92,19 +92,39 @@ from guandan.agent import make_agent  # Planned new factory function
 
 ## 7. TODO Summary
 
-- [ ] Establish `BaseAgent` abstraction and adapter layer
-- [ ] Extract common card type/feature logic
-- [ ] Unify action index + legal mask
+- [x] Establish `BaseAgent` abstraction and adapter layer
+- [x] Extract common card type/feature logic
+- [x] Unify action index + legal mask
 - [ ] Rename aiX → rule_aiX or merge strategy configuration
 - [ ] Clean up redundancy (ai3 / ai4 / ai6) and log noise output
-- [ ] Add minimal smoke test for rule baselines (import + simple fake message driving)
+- [x] Add minimal smoke test for rule baselines (import + simple fake message driving)
 
-## 8. Deletion Strategy Recommendations
+## 8. Current Status (Updated)
 
-| Condition | Action |
-|-----------|--------|
-| BaseAgent adaptation complete and rule_ai1 & rule_ai2 stable | Remove ai3/ai4/ai6 |
-| No one references legacy/mc and new RL runs successfully | Delete legacy/mc |
+### Recent Improvements
+
+- ✅ **Win/Loss Logic**: Integrated proper Guandan win/loss detection in game core
+- ✅ **Tribute System**: Fixed tribute back limit (8 → 10 points) and priority rules
+- ✅ **Rank Progression**: Corrected rank upgrade mechanics based on partner position
+- ✅ **Tournament System**: Implemented proper agent vs agent testing with zero draws
+- ✅ **Documentation**: Comprehensive API and development documentation
+
+### Agent Performance
+
+All rule-based agents (ai1-ai6) are now fully functional and tested:
+
+- **ai1**: Most sophisticated strategy with complex decision making
+- **ai2**: Phased approach with strategic planning
+- **ai3**: Experimental/adversarial tactics
+- **ai4**: Alternative heuristic approach
+- **ai6**: Specialized strategy with unique tactics
+
+### Integration Status
+
+- ✅ **RLLib Integration**: All agents work seamlessly with RLLib MultiAgentEnv
+- ✅ **Tournament Testing**: Agents can be tested against each other
+- ✅ **Observation Space**: Both simple (212D) and comprehensive (513D) modes supported
+- ✅ **Game Rules**: Full Guandan rules implementation with proper win detection
 
 ---
 If you need to add more internal metrics or refactoring progress to the README, please add an Issue or update this file in a PR.

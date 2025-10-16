@@ -21,6 +21,10 @@ class Context:
         self.trick_pass = None
         self.recv_wind = None
         self.wind = None
+        # Win/loss tracking
+        self.winner_team = None  # 'team1' (players 0,2) or 'team2' (players 1,3)
+        self.loser_team = None   # 'team1' (players 0,2) or 'team2' (players 1,3)
+        self.game_result = None  # 'team1_win', 'team2_win', or None
 
     def __repr__(self) -> str:
         return 'Context(table={}, players={}, steps={}, player_waiting={}, last_action={})' \

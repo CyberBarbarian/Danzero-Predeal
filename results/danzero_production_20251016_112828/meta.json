@@ -1,0 +1,10 @@
+{
+  "experiment": "danzero_production_20251016_112828",
+  "config": {
+    "num_workers": 100,
+    "num_envs_per_worker": 1,
+    "total_envs": 100,
+    "num_gpus": 1.0,
+    "num_gpus_per_worker": 0.0
+  }
+}

@@ -99,7 +99,7 @@ class State(object):
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
         # TODO: Players can make other custom processing
-        print("游戏开始, 我是{}号位，手牌：{}".format(self._myPos, self._handCards))
+        print("Game started, I am player {}, hand cards: {}".format(self._myPos, self._handCards))
 
     def notify_play(self):
         """
@@ -116,7 +116,7 @@ class State(object):
         请仅在对应的JSON格式下访问对应的实例属性，若此时访问其他属性则很有可能是之前处理时未更新的实例属性，不具有准确性。
         """
         # TODO: Players can make other custom processing
-        print("{}号位打出{}， 最大动作为{}号位打出的{}".format(self._curPos, self._curAction, self._greaterPos, self._greaterAction))
+        print("Player {} played {}, highest action is {} played by player {}".format(self._curPos, self._curAction, self._greaterAction, self._greaterPos))
 
     def notify_tribute(self):
         """
@@ -132,7 +132,7 @@ class State(object):
         # TODO: Players can make other custom processing
         for tribute_result in self._result:
             tribute_pos, receive_tribute_pos, card = tribute_result
-            print("{}号位向{}号位进贡{}".format(tribute_pos, receive_tribute_pos, card))
+            print("Player {} tributes {} to player {}".format(tribute_pos, card, receive_tribute_pos))
 
     def notify_anti(self):
         """
@@ -148,7 +148,7 @@ class State(object):
         """
         # TODO: Players can make other custom processing
         for pos in self._antiPos:
-            print("{}号位玩家抗贡".format(pos))
+            print("Player {} refuses tribute".format(pos))
 
     def notify_back(self):
         """
@@ -164,7 +164,7 @@ class State(object):
         # TODO: Players can make other custom processing
         for back_result in self._result:
             back_pos, receive_back_pos, card = back_result
-            print("{}号位向{}号位还贡{}".format(back_pos, receive_back_pos, card))
+            print("Player {} returns tribute {} to player {}".format(back_pos, card, receive_back_pos))
 
     def notify_episode_over(self):
         """

@@ -245,6 +245,16 @@ class Strategy(object):
                 self.freeActionRV[type] += min(1, self.freeActionRV[type] + 1)
 
     def UpdateRVwhenRushing(self):
+        # Check if restHandsCount is properly initialized
+        if not hasattr(self, 'restHandsCount') or not self.restHandsCount:
+            # Initialize with default values
+            self.restHandsCount = [27, 27, 27, 27]
+        
+        # Check if myPos is valid
+        if not hasattr(self, 'myPos') or self.myPos < 0 or self.myPos >= len(self.restHandsCount):
+            # Cannot determine player position, skip this optimization
+            return
+            
         C_myself = self.restHandsCount[self.myPos]
         if (C_myself > 5):
             return

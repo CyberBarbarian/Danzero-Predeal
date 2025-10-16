@@ -1,0 +1,21 @@
+# Large DMC model configuration for better GPU utilization
+model:
+  hidden: [1024, 1024, 1024, 1024, 1024, 1024]  # 6x1024 layers for H100
+  activation: tanh
+  orthogonal_init: true
+
+learner:
+  lr: 5.0e-4  # Lower LR for larger model
+  lambda_clip: 0.2
+  batch_size: 4096  # Even larger batch size
+  updates_per_iter: 30  # More updates per iteration
+
+rollout:
+  epsilon_start: 0.2
+  epsilon_end: 0.05
+  epsilon_decay_steps: 200000
+  max_steps_per_episode: 2000
+
+training:
+  num_episodes: 1000  # More episodes
+  checkpoint_every_updates: 25  # More frequent checkpoints

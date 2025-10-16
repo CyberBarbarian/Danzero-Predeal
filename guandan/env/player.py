@@ -1,6 +1,6 @@
 from typing import Union
 
-from env.utils import *
+from .utils import *
 
 
 class Player:

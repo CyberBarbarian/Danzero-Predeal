@@ -1,0 +1,12 @@
+# RLlib PPO default local config for Guandan
+env_config:
+  observation_mode: comprehensive
+  max_steps: 3000
+train:
+  num_workers: 2
+  rollout_fragment_length: 200
+  train_batch_size: 4000
+  sgd_minibatch_size: 256
+  num_sgd_iter: 10
+
+

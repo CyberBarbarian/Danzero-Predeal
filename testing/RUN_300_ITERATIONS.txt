@@ -1,0 +1,105 @@
+================================================================================
+        300-ITERATION TRAINING WITH CPU/GPU MONITORING
+================================================================================
+
+📍 QUICK START
+--------------
+
+$ cd /mnt/project_modelware/lizikang/DanZero
+$ bash testing/scripts/train_with_monitoring.sh
+
+⏱️  Duration: ~20-25 minutes
+📊 Output: testing/outputs/monitoring_[timestamp]/
+
+================================================================================
+📁 OUTPUT FILES
+--------------
+
+1. cpu_utilization.log
+   • CPU usage % + load averages
+   • Sampled every 1 second
+   • CSV format
+
+2. gpu_utilization.log
+   • GPU 0 & GPU 1 metrics
+   • Compute %, memory %, temp, power
+   • Sampled every 1 second
+   • CSV format
+
+3. training_metrics.json
+   • Iteration times
+   • Episodes completed
+   • Rewards
+   • JSON format
+
+4. monitoring_results.png (after visualization)
+   • 9-panel plot
+   • All metrics over time
+
+================================================================================
+📈 VISUALIZE RESULTS
+-------------------
+
+After training completes:
+
+$ python testing/scripts/visualize_monitoring.py testing/outputs/monitoring_[timestamp]
+
+Generates:
+  • Console statistics summary
+  • monitoring_results.png plot
+
+================================================================================
+🎯 TARGET METRICS (150 workers × 4 envs)
+---------------------------------------
+
+CPU: 70-80% mean
+GPU 0: 20-40% mean (learner, CPU-bound)
+GPU 1: 5-15% mean (idle)
+Memory: 10-15 GB per GPU (stable)
+Iteration: 3-5s steady state
+
+================================================================================
+⚙️  CUSTOMIZE
+------------
+
+Edit train_with_monitoring.sh:
+
+Line 13: NUM_ITERATIONS=300     # Change duration
+Line 14: NUM_WORKERS=150        # Change parallelism
+Line 15: NUM_ENVS_PER_WORKER=4  # Change env count
+Line 16: MONITORING_INTERVAL=1  # Change sample rate
+
+================================================================================
+🔬 WHAT TO CHECK
+---------------
+
+1. Is CPU utilization 70-80%? (Target for optimization)
+2. Is GPU 0 showing activity? (Learner should be working)
+3. Is GPU memory stable? (No leaks)
+4. Are iteration times consistent? (Stable configuration)
+5. Are episodes being completed? (Training progressing)
+
+================================================================================
+✅ WORKFLOW
+----------
+
+1. Run 300-iteration test
+2. Review console summary
+3. Visualize with Python script
+4. Examine plots for patterns
+5. Adjust configuration if needed
+6. Re-run and compare
+7. When satisfied → run production training
+
+================================================================================
+💡 TIPS
+------
+
+• First iteration is slower (initialization)
+• CPU should stabilize after ~20 iterations
+• Watch for growing GPU memory (leak indicator)
+• Compare multiple runs to find optimal config
+• CSV logs can be loaded in Excel/spreadsheet
+
+================================================================================
+

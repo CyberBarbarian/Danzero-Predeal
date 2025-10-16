@@ -1398,11 +1398,19 @@ class Action(object):
             #     self.act = 0
         else:
             self.act_range = msg["indexRange"]
-            self.act = randint(0, self.act_range)
+            # Ensure act_range is valid for randint
+            if self.act_range < 0:
+                self.act = 0
+            else:
+                self.act = randint(0, self.act_range)
 
         return self.act
 
     def random_parse(self,msg):
         self.action = msg["actionList"]
         self.act_range = msg["indexRange"]
-        return randint(0,self.act_range)
+        # Ensure act_range is valid for randint
+        if self.act_range < 0:
+            return 0
+        else:
+            return randint(0,self.act_range)

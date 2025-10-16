@@ -35,8 +35,12 @@ class Action(object):
         self.action = msg["actionList"]
         self.act_range = msg["indexRange"]
         print(self.action)
-        print("可选动作范围为：0至{}".format(self.act_range))
-        return randint(0, self.act_range)
+        print("Available action range: 0 to {}".format(self.act_range))
+        # Ensure act_range is valid for randint
+        if self.act_range < 0:
+            return 0
+        else:
+            return randint(0, self.act_range)
 
     #该为有AI加持的确定行动
     def parse_AI(self, msg, pos):
@@ -47,6 +51,10 @@ class Action(object):
         self.AI_choice = check_message(msg,pos)
         #由于没有考虑进贡，故而随机，否则bug
         if self.AI_choice == None:
-            return randint(0, self.act_range)
-        print("AI选择的出牌编号为:{}".format(self.AI_choice))
+            # Ensure act_range is valid for randint
+            if self.act_range < 0:
+                return 0
+            else:
+                return randint(0, self.act_range)
+        print("AI selected action index: {}".format(self.AI_choice))
         return self.AI_choice

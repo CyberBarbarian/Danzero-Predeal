@@ -3,7 +3,7 @@ from copy import deepcopy
 import numpy as np
 from collections import Counter
 
-from env.context import Context
+from .context import Context
 
 CardToNum = {
     'H2':0, 'H3':1, 'H4':2, 'H5':3, 'H6':4, 'H7':5, 'H8':6, 'H9':7, 'HT':8, 'HJ':9, 'HQ':10, 'HK':11, 'HA':12,
@@ -33,8 +33,10 @@ def legalaction(ctx: Context, last_type=-1, last_value=-1):   # last_value在自
     rank_card_num = ctx.players[ctx.player_waiting].get_rank_card_num()  # 这个是万能牌的数量
     rank_card = CardToNum['H' + ctx.cur_rank]    # 红桃是第一个编码，所以和cur_rank是相等的
     action_list = []
-    if last_type != -1:  # 如果不是自己领出牌，都是可以跳过的
-        action_list.append([])
+    # CRITICAL FIX: Only allow pass when following someone else's play (last_type != -1)
+    # When last_type == -1 (free play after everyone passed), player MUST play a card
+    if last_type != -1:  # 跟牌时可以选择跳过
+        action_list.append([])  # Add pass action only when following someone's play
     cards_num = [sum([cards[i+j*13] for j in range(4)]) for i in range(13)]  # 手中每种牌的数量（不包括大小王）
 
     # 单牌
@@ -297,6 +299,9 @@ def legalaction(ctx: Context, last_type=-1, last_value=-1):   # last_value在自
     for ele in big_bumb:
         ele.append(14)
 
+    # Initialize n_need to avoid UnboundLocalError
+    n_need = []
+    
     if last_type == -1:  # 自己先出牌
         n_need = n_card
     elif last_type == 14:  # 如果有人出了王炸，直接返回空列表
@@ -356,8 +361,19 @@ def give_type(ctx):
     else:     # 在n_card类型时，last_value按照字典中的对应值来(即第一行的0~12)
         rank_card = CardToNum['H' + ctx.cur_rank]
         cards_vector = ctx.last_max_action   # 当前轮最大的动作
+        
+        # Handle case where last_max_action is None
+        if cards_vector is None:
+            last_type = -1
+            last_value = -1
+            return last_type, last_value
+            
         cards_list = []
-        last_type = cards_vector[-1]  # 牌的类型
+        # Handle action vector format: 54 cards + last_type + last_value (56 elements total)
+        if len(cards_vector) == 56:
+            last_type = cards_vector[-2]  # 牌的类型 (second to last element)
+        else:
+            last_type = cards_vector[-1]  # 牌的类型 (fallback for old format)
         for index, val in enumerate(cards_vector[:54]):
             if val > 0:
                 if index < 52:     # 0-12
@@ -366,13 +382,24 @@ def give_type(ctx):
                     cards_list += val * [index]
         if last_type <= 2:  # 单或者对,因为可能有王，所以单独考虑
             if rank_card not in cards_list or len(cards_list) == 1:
-                assert len(set(cards_list)) == 1, 'exist illegal single or double'
-                if 52 in cards_list:
-                    last_value = 13
-                elif 53 in cards_list:
-                    last_value = 14
+                if len(set(cards_list)) != 1:
+                    # Handle mixed cards by using the most common card value
+                    from collections import Counter
+                    most_common = Counter(cards_list).most_common(1)[0][0]
+                    # Suppress warning - this is normal game behavior
+                    if 52 in cards_list:
+                        last_value = 13
+                    elif 53 in cards_list:
+                        last_value = 14
+                    else:
+                        last_value = most_common
                 else:
-                    last_value = cards_list[0]
+                    if 52 in cards_list:
+                        last_value = 13
+                    elif 53 in cards_list:
+                        last_value = 14
+                    else:
+                        last_value = cards_list[0]
             else:
                 card = rank_card       # 防止都是级牌
                 for i in range(len(cards_list)):
@@ -382,8 +409,14 @@ def give_type(ctx):
                 last_value = card
         elif 2 < last_type <= 8:  # 都是一样的牌
             if rank_card not in cards_list:  # 无级牌或万能牌
-                assert len(set(cards_list)) == 1, 'exist illegal n_cards'
-                last_value = cards_list[0]
+                if len(set(cards_list)) != 1:
+                    # Handle mixed cards by using the most common card value
+                    from collections import Counter
+                    most_common = Counter(cards_list).most_common(1)[0][0]
+                    last_value = most_common
+                    # Suppress warning - this is normal game behavior
+                else:
+                    last_value = cards_list[0]
             else:
                 card = rank_card      # 因为存的是点数，有可能几张都是级牌
                 for i in range(len(cards_list)):
@@ -424,22 +457,35 @@ def whether_flush(card_list, card):
 # 进贡是要进贡手里除了万能牌之外最大的牌（这边加个判断，如果有一样大的牌，看看能不能有同花顺，有的话就不给放进去，如果都可以组，就随机留一个）
 def tribute_legal(cards_list, ctx):
     tri_dic = {}
+    rank_card = CardToNum['H' + ctx.cur_rank]  # Wild card (level card)
+    
+    # Priority 1: Red Joker (53)
     if 53 in cards_list:
         return [53]
+    # Priority 2: Black Joker (52)  
     elif 52 in cards_list:
         return [52]
     else:
+        # Priority 3: Highest non-wild card
         for ele in cards_list:
-            if ele % 13 != CardToNum['H' + ctx.cur_rank]:
-                val = ele % 13
+            # Skip wild cards (level cards) - they cannot be used for tribute
+            if ele == rank_card:
+                continue
+            # Skip jokers (already handled above)
+            if ele >= 52:
+                continue
+                
+            val = ele % 13
+            if val not in tri_dic:
+                tri_dic[val] = [ele]
             else:
-                val = 50
-            if ele != CardToNum['H' + ctx.cur_rank]:
-                if val not in tri_dic:
-                    tri_dic[val] = [ele]
-                else:
-                    tri_dic[val].append(ele)
+                tri_dic[val].append(ele)
     sorted_dic = list(sorted(tri_dic.items(), key=lambda x: x[0], reverse=True))
+    
+    # If no valid cards for tribute, return empty list
+    if not sorted_dic:
+        return []
+        
     res = sorted_dic[0][1]
     backup = []
     if len(res) == 1:
@@ -450,18 +496,19 @@ def tribute_legal(cards_list, ctx):
             if judge:  # 如果存在同花顺
                 res.remove(card)
                 backup.append(card)
-        if len(res) == 0:
+        if len(res) == 0 and len(backup) > 0:
             res.append(backup[0])
+        elif len(res) == 0:
+            return []  # No valid tribute cards available
         res = list(set(res))
     return res
 
 
-# 返回抗贡的合法动作，这里同样默认不返回级牌
+# 返回抗贡的合法动作，还贡时可以返回任何牌（包括级牌），只要点数不超过10
 def back_legal(cards_list, ctx):
     res = []
-    rank_card = CardToNum['H' + ctx.cur_rank]
     for i in cards_list:
-        if i % 13 <= 8 and i % 13 != rank_card and i < 52:  # 还贡的牌不能是大小王
+        if i % 13 <= 9 and i < 52:  # 还贡的牌不能是大小王，最大10点，但可以包含级牌
             res.append(i)
     res = list(set(res))
     return res

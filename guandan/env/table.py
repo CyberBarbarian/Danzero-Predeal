@@ -16,6 +16,8 @@ class Table:
         self.players_last_end = []
     
     def detach(self, player_id: int):
-        self.players_on_table_numb -= 1
-        self.players_on_table_id.remove(player_id)
-        self.players_last_end.append(player_id)
+        # Only detach if player is actually on the table
+        if player_id in self.players_on_table_id:
+            self.players_on_table_numb -= 1
+            self.players_on_table_id.remove(player_id)
+            self.players_last_end.append(player_id)

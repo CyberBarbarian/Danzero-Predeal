@@ -1,0 +1,18 @@
+# Paper-aligned hyperparameters (Tanh + orthogonal init, 5x512)
+model:
+  hidden: [512, 512, 512, 512, 512]
+  activation: tanh
+  orthogonal_init: true
+learner:
+  lr: 1.0e-3
+  lambda_clip: 0.2
+  batch_size: 2048  # Increased for better GPU utilization
+  updates_per_iter: 20  # More updates per iteration
+rollout:
+  epsilon_start: 0.2
+  epsilon_end: 0.05
+  epsilon_decay_steps: 200000
+  max_steps_per_episode: 2000
+training:
+  num_episodes: 500  # More episodes for better GPU utilization
+  checkpoint_every_updates: 50  # More frequent checkpoints

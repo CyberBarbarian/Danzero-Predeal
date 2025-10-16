@@ -1,0 +1,110 @@
+================================================================================
+                    DANZERO PROFILING - QUICK START
+================================================================================
+
+🎯 GOAL: Profile CPU/GPU utilization with 600-environment configuration
+
+📍 LOCATION: /mnt/project_modelware/lizikang/DanZero
+
+================================================================================
+🚀 RUN PROFILING TEST (Recommended)
+================================================================================
+
+$ cd /mnt/project_modelware/lizikang/DanZero
+$ source /mnt/project_modelware/lizikang/Danvenv/bin/activate
+$ python testing/scripts/test_with_profiling.py
+
+⏱️  Duration: ~2-3 minutes (20 iterations)
+📊 Output: testing/outputs/profiling_[timestamp]/
+
+Files created:
+  ✓ resource_metrics.json - CPU/GPU utilization time series
+  ✓ training_metrics.json - Training performance data  
+  ✓ profiling_results.png - 6-panel visualization plots
+
+================================================================================
+⚡ QUICK TEST (No Profiling)
+================================================================================
+
+$ python testing/scripts/test_cpu_optimization.py
+
+⏱️  Duration: ~30 seconds (5 iterations)
+📊 Output: Console only
+
+Use this to quickly validate configuration stability.
+
+================================================================================
+📊 WHAT TO EXPECT
+================================================================================
+
+Console output will show:
+  • Initialization time (~30-60s for 150 workers)
+  • Iteration progress (20 iterations)
+  • CPU utilization mean/max/min
+  • GPU utilization mean/max/min
+  • Training performance summary
+
+Target metrics:
+  ✓ CPU utilization: 70-80% average
+  ✓ GPU utilization: 20-40% (CPU-bound scenario)
+  ✓ Iteration time: 3-5s (after warmup)
+  ✓ Episodes per iteration: varies (0-10)
+
+================================================================================
+📈 VIEW RESULTS
+================================================================================
+
+After test completes:
+
+$ ls testing/outputs/profiling_*/
+
+Open the PNG file to view:
+  • CPU utilization curve
+  • GPU utilization curve
+  • GPU memory usage
+  • Iteration time stability
+  • Episode progress
+  • Reward progression
+
+================================================================================
+🔧 TROUBLESHOOTING
+================================================================================
+
+If initialization hangs:
+  → Check: ray status
+  → Fix: ray stop && retry
+
+If matplotlib error:
+  → Install: pip install matplotlib
+  → Note: Script still saves JSON data
+
+If GPU monitoring fails:
+  → Check: nvidia-smi
+  → Script continues with 0 values
+
+If memory error:
+  → Reduce workers temporarily for testing
+  → Edit script: num_workers=100
+
+================================================================================
+✅ NEXT STEPS
+================================================================================
+
+After profiling test:
+
+1. Review console summary (CPU/GPU utilization)
+2. Check profiling_results.png for visual analysis
+3. Examine JSON files for detailed data
+4. If satisfied, run production training:
+   $ bash train_production.sh
+
+================================================================================
+💡 REMEMBER
+================================================================================
+
+• Profiling is for TEST MODE only
+• Production training has NO profiling overhead
+• Both use same configuration (150 workers × 4 envs)
+• Profiling helps validate configuration tuning
+
+================================================================================

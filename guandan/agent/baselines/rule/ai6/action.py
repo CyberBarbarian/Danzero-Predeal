@@ -7,6 +7,7 @@
 from random import randint
 from .Myfunc1014 import Myfunc1014  # 原 from agent.ai6.Myfunc1014 import Myfunc1014
 from .lasthand import lasthand      # 原 from agent.ai6.lasthand import lasthand
+from ....logging_config import get_agent_logger
 # 中英文对照表
 ENG2CH = {
     "Single": "单张",
@@ -30,6 +31,7 @@ class Action(object):
         self.myfunc1014 = Myfunc1014()
         self.lasthand = lasthand()
         self.id = id
+        self.logger = get_agent_logger("ai6")
 
     def parse(self, msg):
         self.action = msg["actionList"]
@@ -49,11 +51,11 @@ class Action(object):
         thirdmin_index = rest_card.index(thirdmin)  # 剩余手牌第三小的人的数的索引
         forthmin = self.myfunc1014.forthmin(rest_card)  # 剩余手牌第四个小的人的数
         forthmin_index = rest_card.index(forthmin)  # 剩余手牌第四小的人的数的索引
-        print("可选动作范围为：0至{}".format(self.act_range))
+        self.logger.debug(f"Available action range: 0 to {self.act_range}")
         #最新配牌出牌策略
-        print("这里会反映每个msg",msg)
+        self.logger.debug(f"Processing message: {msg}")
         if msg['stage']=='back':#还贡
-            print("还贡操作",msg)
+            self.logger.debug(f"Tribute operation: {msg}")
             hmfunfircard0 = self.myfunc1014.firstcard(msg['handCards'], msg['curRank'])[0]
             hmfunfircard1 = self.myfunc1014.firstcard(msg['handCards'], msg['curRank'])[1]
             hmfunfircardSingle = self.myfunc1014.lgetcard(hmfunfircard0,hmfunfircard1)['Single']
@@ -69,14 +71,14 @@ class Action(object):
             else:
                 return 0
         elif (msg['greaterPos'] == -1) and msg['stage'] == 'play':#这是先手出牌
-            print("我先手的msg",msg)
+            self.logger.debug(f"First hand message: {msg}")
             xmfunfircard0 = self.myfunc1014.firstcard(msg['handCards'],msg['curRank'])[0]
             xmfunfircard1 = self.myfunc1014.firstcard(msg['handCards'],msg['curRank'])[1]
             xmfunlgetcard = self.myfunc1014.lgetcard(xmfunfircard0,xmfunfircard1)
             xgetcolor = self.myfunc1014.getcolor(xmfunlgetcard, msg['curRank'])
             if min(rest_card) > 6:
                 gettion_index1 = self.myfunc1014.getindex(msg['actionList'],xgetcolor)
-                print("这是先手的gettion_index1",gettion_index1)
+                self.logger.debug(f"First hand action index: {gettion_index1}")
                 if gettion_index1 == None:
                     return 0
                 else:
@@ -96,7 +98,7 @@ class Action(object):
                         else:
                             return gettion_index1
                     else:
-                        print("我调用了")
+                        self.logger.debug("Calling alternative strategy")
                         # gettion_index1 = self.myfunc1014.getindex(msg['actionList'], self.myfunc1014.getcolor2(msg2, msg['curRank'], typec))
                         gettion_index1 = self.myfunc1014.getindex(msg['actionList'], self.myfunc1014.getcolor2(
                             self.myfunc1014.lgetcard(self.myfunc1014.firstcard(msg['handCards'], msg['curRank'])[0],
@@ -120,7 +122,7 @@ class Action(object):
                         else:
                             return gettion_index1
                     else:
-                        print("我调用了")
+                        self.logger.debug("Calling alternative strategy")
                         # gettion_index1 = self.myfunc1014.getindex(msg['actionList'],self.myfunc1014.getcolor2(msg2, msg['curRank'],typec))
                         gettion_index1 = self.myfunc1014.getindex(msg['actionList'], self.myfunc1014.getcolor2(self.myfunc1014.lgetcard(self.myfunc1014.firstcard(msg['handCards'], msg['curRank'])[0],self.myfunc1014.firstcard(msg['handCards'], msg['curRank'])[1]),msg['curRank'],typec))
                         if gettion_index1 == None:
@@ -142,9 +144,9 @@ class Action(object):
             reSort9 = self.myfunc1014.reSortun9(msg['curRank'], msg['greaterAction'][1])
             reSortQ = self.myfunc1014.reSortunQ(msg['curRank'], msg['greaterAction'][1])
             lastgetcolor =  self.lasthand.getcolor(dict1, msg['curRank'], msg['greaterAction'])
-            print("这是dict1",dict1)
+            self.logger.debug(f"Card analysis result: {dict1}")
             if self.lasthand.getlen(dict1) == 1 and (myclient % 2 != int(msg['greaterPos']) % 2):
-                print("我炸弹多")
+                self.logger.debug("Using bomb strategy")
                 getBomb_index = self.lasthand.getindex(msg['actionList'],lastgetBomb)
                 return getBomb_index
             elif (myclient % 2 == int(msg['greaterPos']) % 2 and reSort21):
@@ -163,9 +165,9 @@ class Action(object):
                 return 0
             else:
                 if min(rest_card) > 6: #如果剩余手牌数大于6张的情况
-                    print("剩余手牌数大于6张")
+                    self.logger.debug("Remaining cards > 6")
                     gettion_index1 = self.lasthand.getindex(msg['actionList'], lastgetcolor)
-                    print("这是后手msg手牌", msg['handCards'])
+                    self.logger.debug(f"Second hand cards: {msg['handCards']}")
                     if gettion_index1 == 0:
                         return 0
                     elif gettion_index1 == None:
@@ -178,7 +180,7 @@ class Action(object):
                     reSort31 = self.myfunc1014.reSort3(msg['curRank'], msg['greaterAction'][1])
                     if rest_card[clientxia] == 1 and msg['greaterAction'][0] == 'Single' and reSort31:
                     # 如果下家有1张，且最大手牌出的单张，且小于A，优先用最大的单张压 如果index为0的情况？ 调用出炸弹的函数
-                        print("情况1")
+                        self.logger.debug("Strategy case 1")
                         if len(dict1['Single']) != 0:
                             gettion_index1 = self.lasthand.getindex(msg['actionList'],dict1['Single'][-1])
                             if gettion_index1 == 0:
@@ -187,12 +189,12 @@ class Action(object):
                                 return gettion_index1
                         else:
                             #返回炸弹
-                            print("成都")
+                            self.logger.debug("Using bomb")
                             getBomb_index = self.lasthand.getindex(msg['actionList'], lastgetBomb)
                             return getBomb_index
                     elif rest_card[clientxia] == 2 and msg['greaterAction'][0] == 'Pair' and reSort31:
                         #如果下家有2张，且最大手牌出的对子，且小于A，优先出最大的对子 ，如果index为0的情况？调用出炸弹的函数
-                        print("情况2")
+                        self.logger.debug("Strategy case 2")
                         if len(dict1['Pair']) != 0:
                             gettion_index1 = self.lasthand.getindex(msg['actionList'],dict1['Pair'][-1])
                             if gettion_index1 == 0:
@@ -202,13 +204,13 @@ class Action(object):
                                 return gettion_index1
                         else:
                             # 返回炸弹
-                            print("成都")
+                            self.logger.debug("Using bomb")
                             getBomb_index = self.lasthand.getindex(msg['actionList'], lastgetBomb)
                             return getBomb_index
                     else:
                         gettion_index1 = self.lasthand.getindex(msg['actionList'], lastgetcolor)
                         if gettion_index1 == 0 and len(msg['actionList']) > 1 and msg['actionList'][1][0] == 'Bomb' and (myclient % 2 != int(msg['greaterPos']) % 2) and rest_card[rest_cardmin_index] != 4:
-                            print("这是后手小于六张，不是对家", rest_cardmin_index)
+                            self.logger.debug(f"Second hand < 6 cards, not partner: {rest_cardmin_index}")
                             getBomb_index = self.lasthand.getindex(msg['actionList'],lastgetBomb)
                             return getBomb_index
                         elif gettion_index1 == 0:
@@ -218,4 +220,8 @@ class Action(object):
                         else:
                             return gettion_index1
         else:
-            return randint(0, self.act_range)
+            # Ensure act_range is valid for randint
+            if self.act_range < 0:
+                return 0
+            else:
+                return randint(0, self.act_range)

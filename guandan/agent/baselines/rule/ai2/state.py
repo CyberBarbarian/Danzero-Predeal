@@ -243,9 +243,9 @@ class State(object):
                 {'rest': 27, 'playArea': None},
                 {'rest': 27, 'playArea': None}
             ],
-            "selfRank": ‘2’,
-            "oppoRank": ‘2’,
-            "curRank": ‘2’,
+            "selfRank": '2',
+            "oppoRank": '2',
+            "curRank": '2',
             "stage": "play",
             "curPos": -1,
             "curAction": None,
@@ -259,6 +259,27 @@ class State(object):
         print("当前动作为{}号-动作{}， 最大动作为{}号-动作{}，目前可选动作如下：".format(
             self._curPos, self._curAction, self._greaterPos, self._greaterAction)
         )
+
+        # Extract rest hands count from publicInfo to fix 'list index out of range' error
+        if hasattr(self, '_publicInfo') and self._publicInfo:
+            self.strategy.restHandsCount = []
+            for player_info in self._publicInfo:
+                if isinstance(player_info, dict) and 'rest' in player_info:
+                    self.strategy.restHandsCount.append(player_info['rest'])
+                else:
+                    # Fallback if publicInfo format is unexpected
+                    self.strategy.restHandsCount.append(27)
+            
+            # Ensure we have exactly 4 players
+            while len(self.strategy.restHandsCount) < 4:
+                self.strategy.restHandsCount.append(27)
+        else:
+            # Fallback: assume all players have 27 cards (initial state)
+            self.strategy.restHandsCount = [27, 27, 27, 27]
+        
+        # Ensure myPos is set
+        if hasattr(self, '_myPos') and self._myPos is not None:
+            self.strategy.myPos = self._myPos
 
         if (self.strategy.greaterPos == -1 or self._greaterPos==-1):
             self.strategy.UpdateCurRank(self._curRank)

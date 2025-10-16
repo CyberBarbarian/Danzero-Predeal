@@ -2,5 +2,8 @@ GitPython==3.0.5
 gitdb2==2.0.6
 rlcard
 
+# TensorBoard logging
+tensorboard>=2.9
+
 
 

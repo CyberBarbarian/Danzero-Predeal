@@ -1,6 +1,6 @@
 import random
 
-from env.utils import *
+from .utils import *
 
 color = ['H', 'S', 'C', 'D']  # 黑桃 ♠ Spade, 红心 ♥ Heart, 方片 ♦ Diamond, 梅花 ♣ Club
 points = ['2', '3', '4', '5', '6', '7', '8', '9', 'T', 'J', 'Q', 'K', 'A']

@@ -27,9 +27,7 @@ DanZero/
 ├── actor.sh                    # Training script
 ├── get_most_recent.sh          # Model retrieval script
 ├── kill.sh                     # Process termination script
-├── test_rllib_simple.py        # RLLib environment test suite
-├── test_rllib_env_simple.py    # RLLib environment validation
-├── test_rllib_env.py           # RLLib environment test (legacy)
+├── logs/                        # Game log files directory
 ├── most_recent_model/          # Model checkpoint directory
 ├── Danvenv/                    # Python virtual environment
 ├── archive/                    # Legacy Doudizhu code archive
@@ -65,8 +63,7 @@ env/
 ├── move_generator.py          # Legal move generation
 ├── move_selector.py           # Move selection utilities
 ├── observation_extractor.py   # JSON to numpy observation conversion (212-dim)
-├── rllib_env.py              # RLLib MultiAgentEnv wrapper (original)
-└── rllib_env_simple.py       # RLLib MultiAgentEnv wrapper (simplified, working)
+└── rllib_env.py              # RLLib MultiAgentEnv wrapper (complete with agents)
 ```
 
 #### Agent System (`agent/`)
@@ -196,27 +193,26 @@ archive/
 ### Completed
 
 - ✅ Guandan game environment implementation
-- ✅ Multiple rule-based agent strategies
-- ✅ Complete training framework structure
+- ✅ Rule-based agent strategies (ai1-ai6)
 - ✅ Agent registry and factory system
-- ✅ Legacy code archival and organization
 - ✅ RLLib MultiAgentEnv integration
-- ✅ Observation extraction system (212-dimensional)
-- ✅ Comprehensive test suites for RLLib integration
-- ✅ Documentation maintenance and updates
+- ✅ Paper-compliant observation space (513-dimensional)
+- ✅ Win/loss logic integration in game core
+- ✅ Tribute system with proper limits (10 points max)
+- ✅ Rank progression and upgrade mechanics
+- ✅ Tournament system with proper win detection
 
 ### In Progress
 
 - 🔄 BaseAgent interface unification
-- 🔄 Full game logic integration with RLLib environment
-- 🔄 Agent adapter layer for existing agents
+- 🔄 Training framework implementation
+- 🔄 Performance optimization and testing
 
 ### Planned
 
-- 📋 Performance optimization
+- 📋 Complete training pipeline
 - 📋 Model evaluation and benchmarking
 - 📋 Advanced training strategies
-- 📋 Multi-agent coordination improvements
 
 ## Usage
 
@@ -237,10 +233,10 @@ action_index = agent.received_message(game_message)
 #### RLLib Environment Usage
 
 ```python
-from guandan.env.rllib_env_simple import GuandanRLLibEnv
+from guandan.env.rllib_env import GuandanMultiAgentEnv
 
 # Create environment
-env = GuandanRLLibEnv()
+env = GuandanMultiAgentEnv()
 
 # Reset and get observations
 obs = env.reset()
@@ -262,9 +258,11 @@ python train.py --xpid danzero_experiment --total_frames 10000000
 ### Testing
 
 ```bash
-# Test RLLib integration
-python test_rllib_simple.py
-python test_rllib_env_simple.py
+# Test RLLib environment
+python -c "from guandan.env.rllib_env import make_guandan_env; env = make_guandan_env(); print('Environment ready!')"
+
+# View game logs
+ls logs/
 ```
 
 ## Contributing
@@ -274,7 +272,7 @@ This project welcomes contributions in:
 - Guandan rule implementations and edge cases
 - New agent strategies and algorithms
 - Training pipeline optimizations
-- Testing and validation improvements
+- Performance optimizations
 - Documentation and examples
 
 ## License

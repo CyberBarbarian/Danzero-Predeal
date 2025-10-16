@@ -224,7 +224,7 @@ def combine_handcards(handcards, rank, card_val):
 
 def rest_cards(handcards, remaincards, rank):
     card_value_v2s = {0: "A", 1: "2", 2: "3", 3: "4", 4: "5", 5: "6", 6: "7", 7: "8", 8: "9", 9: "T", 10: "J",
-                      11: "Q", 12: "K"}
+                      11: "Q", 12: "K", 13: "R"}
     card_value_s2v = {"2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, "9": 9, "T": 10, "J": 11,
                       "Q": 12, "K": 13, "A": 14, "B": 16, "R": 17}
 

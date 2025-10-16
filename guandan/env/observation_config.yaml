@@ -1,0 +1,50 @@
+# Comprehensive Observation Extractor Configuration
+# This file defines the configuration options for the unified observation extractor
+
+# Observation mode: "simple" or "comprehensive"
+observation_mode: "simple"  # Change to "comprehensive" for 513-dimensional observations
+
+# Observation configuration
+observation_config:
+  # Component enable/disable flags
+  components:
+    hand_cards: true
+    public_info: true
+    game_state: true
+    legal_actions: true
+    action_history: true
+    remaining_cards: false  # Only available in comprehensive mode
+    last_move_to_cover: false  # Only available in comprehensive mode
+    partner_last_move: false  # Only available in comprehensive mode
+    card_counts: false  # Only available in comprehensive mode
+    played_cards: false  # Only available in comprehensive mode
+    team_levels: false  # Only available in comprehensive mode
+    wild_flags: false  # Only available in comprehensive mode
+
+# Agent configuration
+agent_types:
+  agent_0: "ai1"  # Rule-based agent
+  agent_1: "ai2"  # Rule-based agent
+  agent_2: "ai3"  # Rule-based agent
+  agent_3: "ai4"  # Rule-based agent
+
+# RLLib environment configuration
+rllib_config:
+  num_workers: 4
+  framework: "torch"
+  train_batch_size: 4000
+  sgd_minibatch_size: 128
+  num_sgd_iter: 10
+  lr: 0.0003
+  gamma: 0.99
+  lambda: 0.95
+  clip_param: 0.2
+  entropy_coeff: 0.01
+  vf_loss_coeff: 0.5
+
+# Training configuration
+training:
+  max_episodes: 1000000
+  save_frequency: 10000
+  evaluation_frequency: 5000
+  checkpoint_frequency: 10000
