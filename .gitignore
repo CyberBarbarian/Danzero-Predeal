@@ -191,6 +191,10 @@ wandb/
 # MLflow
 mlruns/
 
+# result
+.results
+.checkpoints
+
 # Jupyter
 .ipynb_checkpoints/
 

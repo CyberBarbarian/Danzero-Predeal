@@ -10,7 +10,8 @@ import sys
 from pathlib import Path
 
 # Add project root to Python path
-project_root = Path(__file__).parent.parent
+# From scripts/training/ -> scripts/ -> project root
+project_root = Path(__file__).parent.parent.parent
 sys.path.insert(0, str(project_root))
 
 from guandan.training.loop_gpu import run_gpu_training_iteration

@@ -403,6 +403,6 @@ echo "✅ Quick test complete!"
 echo "================================================================================"
 echo ""
 echo "To run full training (10K iterations):"
-echo "  bash train_production.sh"
+echo "  bash scripts/training/train_production.sh"
 echo ""
 
